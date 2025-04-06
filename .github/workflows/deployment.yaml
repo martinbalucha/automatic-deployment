@@ -1,69 +1,69 @@
-# name: Deploy Vite App
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     - name: Checkout Code
-#       uses: actions/checkout@v2
-
-#     - name: Install Dependencies
-#       run: |
-#         npm install
-
-#     - name: Deploy to EC2
-#       uses: appleboy/ssh-action@v0.1.5
-#       with:
-#         host: ${{ secrets.EC2_HOST }}
-#         username: ${{ secrets.EC2_USER }}
-#         key: ${{ secrets.EC2_KEY }}
-#         script: |
-#           cd /home/ubuntu/automatic-deployment
-#           chmod -R u+rw dist
-#           rm -rf dist
-#           git pull origin main
-#           npm install
-#           npm run build
-#           sudo systemctl restart nginx
-
-
-name: Deploy to EC2
+name: Deploy Vite App
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+    - name: Checkout Code
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+    - name: Install Dependencies
+      run: |
+        npm install
 
-      - name: Install dependencies and build Vite app
-        run: |
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_KEY }}
+        script: |
+          cd /home/ubuntu/automatic-deployment
+          chmod -R u+rw dist
+          rm -rf dist
+          git pull origin main
           npm install
-          npm run build 
+          npm run build
+          sudo systemctl restart nginx
 
-      - name: Deploy to EC2
-        env:
-          PRIVATE_KEY: ${{ secrets.EC2_KEY }}
-          HOST: ${{ secrets.EC2_HOST }}
-          USER: ${{ secrets.EC2_USER }}
-        run: |
-          echo "$PRIVATE_KEY" > github-ec2.pem && chmod 600 github-ec2.pem
-          scp -o StrictHostKeyChecking=no -i github-ec2.pem -r dist/* ${USER}@${HOST}:/home/ubuntu/automatic-deployment/dist
-          ssh -o StrictHostKeyChecking=no -i github-ec2.pem ${USER}@${HOST} '
-          echo "Vite app deployed to /home/ubuntu/automatic-deployment/dist"
-          sudo systemctl restart nginx || echo "Make sure Nginx is properly configured"
-          '
+
+# name: Deploy to EC2
+
+# on:
+#   push:
+#     branches: [ main ]
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+
+#       - name: Set up Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 18
+
+#       - name: Install dependencies and build Vite app
+#         run: |
+#           npm install
+#           npm run build 
+
+#       - name: Deploy to EC2
+#         env:
+#           PRIVATE_KEY: ${{ secrets.EC2_KEY }}
+#           HOST: ${{ secrets.EC2_HOST }}
+#           USER: ${{ secrets.EC2_USER }}
+#         run: |
+#           echo "$PRIVATE_KEY" > github-ec2.pem && chmod 600 github-ec2.pem
+#           scp -o StrictHostKeyChecking=no -i github-ec2.pem -r dist/* ${USER}@${HOST}:/home/ubuntu/automatic-deployment/dist
+#           ssh -o StrictHostKeyChecking=no -i github-ec2.pem ${USER}@${HOST} '
+#           echo "Vite app deployed to /home/ubuntu/automatic-deployment/dist"
+#           sudo systemctl restart nginx || echo "Make sure Nginx is properly configured"
+#           '
