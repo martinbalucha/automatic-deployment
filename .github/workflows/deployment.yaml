@@ -26,6 +26,7 @@ jobs:
         key: ${{ secrets.EC2_KEY }}
         script: |
           cd /home/ubuntu/automatic-deployment
+          rm -rf dist
           git pull origin main
           npm install
           npm run build
